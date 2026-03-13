@@ -90,6 +90,24 @@ class ApiClient {
 
     return payload as TResponse;
   }
+
+  async getBlob(path: string): Promise<Blob> {
+    const authHeader = await this.getAuthorizationHeader();
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: "GET",
+      headers: {
+        ...authHeader
+      }
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      const message = typeof payload.error === "string" ? payload.error : "Request failed";
+      throw new ApiClientError(message, response.status);
+    }
+
+    return response.blob();
+  }
 }
 
 export const apiClient = new ApiClient();
@@ -173,6 +191,7 @@ export interface ResumeRecord {
   id: string;
   userId: string;
   title: string;
+  template: string;
   jobTitle: string;
   companyName: string;
   jobDescription: string;
@@ -205,4 +224,12 @@ export async function updateResume(
   content: GeneratedResumeContent
 ): Promise<ResumeRecord> {
   return apiClient.put<ResumeRecord>(`/resume/${resumeId}`, { content });
+}
+
+export async function exportResumePDF(resumeId: string): Promise<Blob> {
+  return apiClient.getBlob(`/resume/${resumeId}/export/pdf`);
+}
+
+export async function exportResumeDOCX(resumeId: string): Promise<Blob> {
+  return apiClient.getBlob(`/resume/${resumeId}/export/docx`);
 }

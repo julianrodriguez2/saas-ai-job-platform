@@ -1,14 +1,14 @@
-# Job AI Platform (Increments 1-5)
+# Job AI Platform (Increments 1-6)
 
 Monorepo for an AI-powered Job Search Platform SaaS with:
 - Next.js frontend (App Router + NextAuth + protected pages)
-- Express backend (JWT-protected API middleware + AI resume generation/edit service)
+- Express backend (JWT-protected API middleware + AI resume generation/edit/export service)
 - PostgreSQL + Prisma schema
 
 ## Stack
 
 - Frontend: Next.js, React, TypeScript, Tailwind, NextAuth (Google OAuth)
-- Backend: Node.js, Express, TypeScript, JWT auth middleware, OpenAI integration
+- Backend: Node.js, Express, TypeScript, JWT auth middleware, OpenAI integration, PDF/DOCX export (`pdfkit`, `docx`)
 - Database: PostgreSQL + Prisma ORM
 - Shared: Cross-package TypeScript types
 
@@ -134,6 +134,21 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
   - Left: Summary, Skills
   - Right: Experience, Education
 
+## Resume Export (Increment 6)
+
+- Export endpoints (authenticated + ownership enforced):
+  - `GET /resume/:id/export/pdf`
+  - `GET /resume/:id/export/docx`
+- Export formats:
+  - PDF via `pdfkit`
+  - DOCX via `docx`
+- Shared template renderer:
+  - `backend/src/utils/resumeTemplate.ts`
+  - Normalizes JSON and resolves template styles (`classic`, `modern`, `compact`)
+- Resume editor UI now includes:
+  - `Download PDF`
+  - `Download DOCX`
+
 ## Prisma Migration Commands
 
 Run after schema changes:
@@ -147,4 +162,7 @@ npm --workspace backend exec prisma migrate dev --name add_ai_resume_fields
 
 # Increment 5 resume editor fields
 npm --workspace backend exec prisma migrate dev --name add_resume_editor_fields
+
+# Increment 6 resume template field
+npm --workspace backend exec prisma migrate dev --name add_resume_template_field
 ```

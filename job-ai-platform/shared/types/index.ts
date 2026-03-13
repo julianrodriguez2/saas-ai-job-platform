@@ -11,6 +11,7 @@ export interface Resume {
   id: string;
   userId: string;
   title: string;
+  template: string;
   jobTitle: string;
   companyName: string;
   jobDescription: string;

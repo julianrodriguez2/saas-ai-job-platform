@@ -38,6 +38,7 @@ model Resume {
   id               String   @id @default(uuid())
   userId           String
   title            String   @default("Untitled Resume")
+  template         String   @default("classic")
   jobTitle         String
   companyName      String
   jobDescription   String

@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  exportResumeDOCX,
+  exportResumePDF,
   getResumeById,
   type GeneratedResumeContent,
   type ResumeEducationItem,
@@ -17,6 +19,7 @@ import { SummaryEditor } from "./SummaryEditor";
 type LeftSection = "summary" | "skills";
 type RightSection = "experience" | "education";
 type SaveState = "idle" | "saving" | "saved" | "error";
+type ExportState = "idle" | "pdf" | "docx";
 
 function defaultContent(): GeneratedResumeContent {
   return {
@@ -109,6 +112,8 @@ export function ResumeEditor({ resumeId }: ResumeEditorProps) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [exportState, setExportState] = useState<ExportState>("idle");
+  const [exportError, setExportError] = useState<string | null>(null);
   const [leftOrder, setLeftOrder] = useState<LeftSection[]>(["summary", "skills"]);
   const [rightOrder, setRightOrder] = useState<RightSection[]>(["experience", "education"]);
 
@@ -219,6 +224,43 @@ export function ResumeEditor({ resumeId }: ResumeEditorProps) {
     return "No changes yet";
   }, [saveState]);
 
+  async function handleExport(format: "pdf" | "docx") {
+    if (!resume) {
+      return;
+    }
+
+    setExportState(format);
+    setExportError(null);
+
+    try {
+      const blob = format === "pdf" ? await exportResumePDF(resume.id) : await exportResumeDOCX(resume.id);
+      const extension = format === "pdf" ? "pdf" : "docx";
+      const safeTitle = resume.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "")
+        .slice(0, 70);
+      const filename = `${safeTitle || "resume"}.${extension}`;
+
+      const downloadUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = downloadUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      if (error instanceof Error) {
+        setExportError(error.message);
+      } else {
+        setExportError("Failed to export resume.");
+      }
+    } finally {
+      setExportState("idle");
+    }
+  }
+
   if (loading) {
     return <p className="text-sm text-muted">Loading resume editor...</p>;
   }
@@ -299,16 +341,39 @@ export function ResumeEditor({ resumeId }: ResumeEditorProps) {
   return (
     <section className="space-y-4">
       <header className="rounded-xl border border-border bg-panel p-5">
-        <h1 className="text-2xl font-semibold">{resume.title}</h1>
-        <p className="text-sm text-muted">
-          Target: {resume.jobTitle} at {resume.companyName}
-        </p>
-        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted">
-          <span>{saveLabel}</span>
-          <span>Version {resume.version}</span>
-          <span>Last edited: {new Date(resume.lastEditedAt).toLocaleString()}</span>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold">{resume.title}</h1>
+            <p className="text-sm text-muted">
+              Target: {resume.jobTitle} at {resume.companyName}
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted">
+              <span>{saveLabel}</span>
+              <span>Version {resume.version}</span>
+              <span>Last edited: {new Date(resume.lastEditedAt).toLocaleString()}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 md:justify-end">
+            <button
+              type="button"
+              onClick={() => handleExport("pdf")}
+              disabled={exportState !== "idle"}
+              className="rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-text transition hover:bg-border disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {exportState === "pdf" ? "Preparing PDF..." : "Download PDF"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExport("docx")}
+              disabled={exportState !== "idle"}
+              className="rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-text transition hover:bg-border disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {exportState === "docx" ? "Preparing DOCX..." : "Download DOCX"}
+            </button>
+          </div>
         </div>
         {saveError ? <p className="mt-2 text-sm text-red-700">{saveError}</p> : null}
+        {exportError ? <p className="mt-2 text-sm text-red-700">{exportError}</p> : null}
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_1.5fr]">
