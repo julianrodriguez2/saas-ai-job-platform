@@ -1,4 +1,8 @@
-export default function JobTrackerPage() {
+import { requireAuth } from "@/lib/auth";
+
+export default async function JobTrackerPage() {
+  await requireAuth();
+
   return (
     <section className="space-y-3">
       <h1 className="text-2xl font-semibold">Job Tracker</h1>
@@ -6,4 +10,3 @@ export default function JobTrackerPage() {
     </section>
   );
 }
-

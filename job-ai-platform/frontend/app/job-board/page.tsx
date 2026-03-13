@@ -1,4 +1,8 @@
-export default function JobBoardPage() {
+import { requireAuth } from "@/lib/auth";
+
+export default async function JobBoardPage() {
+  await requireAuth();
+
   return (
     <section className="space-y-3">
       <h1 className="text-2xl font-semibold">Job Board</h1>
@@ -6,4 +10,3 @@ export default function JobBoardPage() {
     </section>
   );
 }
-

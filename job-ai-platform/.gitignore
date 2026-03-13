@@ -3,7 +3,8 @@ node_modules
 dist
 coverage
 .env
+.env.local
+frontend/.env.local
 *.log
 frontend/.turbo
 backend/.turbo
-

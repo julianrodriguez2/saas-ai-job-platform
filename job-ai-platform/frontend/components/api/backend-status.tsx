@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@/lib/api";
 
 interface UsersResponse {
-  message?: string;
+  id?: string;
+  email?: string;
 }
 
 export function BackendStatus() {
@@ -13,8 +14,14 @@ export function BackendStatus() {
   useEffect(() => {
     const run = async () => {
       try {
-        const data = await apiClient.get<UsersResponse>("/users");
-        setText(data.message ?? "Backend responded.");
+        const data = await apiClient.get<UsersResponse>("/users/me");
+
+        if (data.email) {
+          setText(`Authenticated as ${data.email}`);
+          return;
+        }
+
+        setText("Backend responded.");
       } catch (error) {
         if (error instanceof Error) {
           setText(`API error: ${error.message}`);
@@ -29,4 +36,3 @@ export function BackendStatus() {
 
   return <p className="rounded-md border border-border bg-panel p-3 text-sm text-muted">{text}</p>;
 }
-

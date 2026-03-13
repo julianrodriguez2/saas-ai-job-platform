@@ -1,4 +1,8 @@
-export default function ResumeBuilderPage() {
+import { requireAuth } from "@/lib/auth";
+
+export default async function ResumeBuilderPage() {
+  await requireAuth();
+
   return (
     <section className="space-y-3">
       <h1 className="text-2xl font-semibold">Resume Builder</h1>
@@ -6,4 +10,3 @@ export default function ResumeBuilderPage() {
     </section>
   );
 }
-

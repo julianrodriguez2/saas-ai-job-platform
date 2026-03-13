@@ -1,4 +1,5 @@
 import { clientEnv } from "./env";
+import { getSession } from "next-auth/react";
 
 export class ApiClientError extends Error {
   status: number;
@@ -12,11 +13,26 @@ export class ApiClientError extends Error {
 class ApiClient {
   private readonly baseUrl = clientEnv.apiBaseUrl;
 
+  private async getAuthorizationHeader() {
+    const session = await getSession();
+    const backendAccessToken = session?.backendAccessToken;
+
+    if (!backendAccessToken) {
+      return {};
+    }
+
+    return {
+      Authorization: `Bearer ${backendAccessToken}`
+    };
+  }
+
   async get<TResponse>(path: string): Promise<TResponse> {
+    const authHeader = await this.getAuthorizationHeader();
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        ...authHeader
       }
     });
 
@@ -32,4 +48,3 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
-
