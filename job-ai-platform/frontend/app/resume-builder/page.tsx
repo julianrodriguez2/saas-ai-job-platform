@@ -1,7 +1,7 @@
-import { requireAuth } from "@/lib/auth";
+import { requireProfile } from "@/lib/auth";
 
 export default async function ResumeBuilderPage() {
-  await requireAuth();
+  await requireProfile();
 
   return (
     <section className="space-y-3">

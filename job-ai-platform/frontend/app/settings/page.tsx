@@ -1,14 +1,14 @@
-import { requireAuth } from "@/lib/auth";
+import { ProfileSettingsForm } from "@/components/settings/profile-settings-form";
+import { requireProfile } from "@/lib/auth";
 
 export default async function SettingsPage() {
-  await requireAuth();
+  const { profile } = await requireProfile();
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-5">
       <h1 className="text-2xl font-semibold">Settings</h1>
-      <p className="text-muted">
-        Account configuration, API keys, and integration preferences will be added in later increments.
-      </p>
+      <p className="text-muted">Manage your profile data used for resume and job-matching personalization.</p>
+      <ProfileSettingsForm initialProfile={profile} />
     </section>
   );
 }
