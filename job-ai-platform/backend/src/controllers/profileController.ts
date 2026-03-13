@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "../config/prisma";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
@@ -65,7 +66,7 @@ export class ProfileController {
       return;
     }
 
-    const createdProfile = await prisma.$transaction(async (tx) => {
+    const createdProfile = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       if (parsedBody.data.fullName) {
         await tx.user.update({
           where: { id: req.user!.id },
@@ -119,7 +120,7 @@ export class ProfileController {
 
     const profileInput = parsedBody.data;
 
-    const updatedProfile = await prisma.$transaction(async (tx) => {
+    const updatedProfile = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       if (profileInput.fullName) {
         await tx.user.update({
           where: { id: req.user!.id },
@@ -148,4 +149,3 @@ export class ProfileController {
 }
 
 export const profileController = new ProfileController();
-

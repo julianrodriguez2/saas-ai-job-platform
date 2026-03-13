@@ -3,7 +3,7 @@ import { applicationsRouter } from "./applications.routes";
 import { authRouter } from "./auth.routes";
 import { jobsRouter } from "./jobs.routes";
 import { profileRouter } from "./profile";
-import { resumeRouter } from "./resume.routes";
+import { resumeRouter } from "./resume";
 import { usersRouter } from "./users";
 
 export const apiRouter = Router();

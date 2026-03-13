@@ -13,7 +13,7 @@ export class ApiClientError extends Error {
 class ApiClient {
   private readonly baseUrl = clientEnv.apiBaseUrl;
 
-  private async getAuthorizationHeader() {
+  private async getAuthorizationHeader(): Promise<Record<string, string>> {
     const session = await getSession();
     const backendAccessToken = session?.backendAccessToken;
 
@@ -28,12 +28,13 @@ class ApiClient {
 
   async get<TResponse>(path: string): Promise<TResponse> {
     const authHeader = await this.getAuthorizationHeader();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...authHeader
+    };
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeader
-      }
+      headers
     });
 
     const payload = await response.json().catch(() => ({}));
@@ -48,12 +49,13 @@ class ApiClient {
 
   async post<TResponse>(path: string, body: unknown): Promise<TResponse> {
     const authHeader = await this.getAuthorizationHeader();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...authHeader
+    };
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeader
-      },
+      headers,
       body: JSON.stringify(body)
     });
 
@@ -69,12 +71,13 @@ class ApiClient {
 
   async put<TResponse>(path: string, body: unknown): Promise<TResponse> {
     const authHeader = await this.getAuthorizationHeader();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...authHeader
+    };
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeader
-      },
+      headers,
       body: JSON.stringify(body)
     });
 
@@ -144,4 +147,52 @@ export async function createProfile(payload: CreateProfileInput): Promise<Profil
 
 export async function updateProfile(payload: UpdateProfileInput): Promise<Profile> {
   return apiClient.put<Profile>("/profile", payload);
+}
+
+export interface ResumeExperienceItem {
+  role: string;
+  company: string;
+  period: string;
+  highlights: string[];
+}
+
+export interface ResumeEducationItem {
+  institution: string;
+  degree: string;
+  details: string;
+}
+
+export interface GeneratedResumeContent {
+  summary: string;
+  skills: string[];
+  experience: ResumeExperienceItem[];
+  education: ResumeEducationItem[];
+}
+
+export interface ResumeRecord {
+  id: string;
+  userId: string;
+  jobTitle: string;
+  companyName: string;
+  jobDescription: string;
+  generatedContent: GeneratedResumeContent;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GenerateResumeInput {
+  jobUrl?: string;
+  jobDescription?: string;
+}
+
+export async function generateResume(payload: GenerateResumeInput): Promise<ResumeRecord> {
+  return apiClient.post<ResumeRecord>("/resume/generate", payload);
+}
+
+export async function getResumes(): Promise<ResumeRecord[]> {
+  return apiClient.get<ResumeRecord[]>("/resume");
+}
+
+export async function getResumeById(id: string): Promise<ResumeRecord> {
+  return apiClient.get<ResumeRecord>(`/resume/${id}`);
 }

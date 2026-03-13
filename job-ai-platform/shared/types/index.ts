@@ -1,3 +1,5 @@
+import type { GeneratedResumeContent } from "./resume";
+
 export interface User {
   id: string;
   email: string;
@@ -8,8 +10,12 @@ export interface User {
 export interface Resume {
   id: string;
   userId: string;
-  content: unknown;
+  jobTitle: string;
+  companyName: string;
+  jobDescription: string;
+  generatedContent: GeneratedResumeContent;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface JobPosting {
@@ -31,3 +37,4 @@ export interface Application {
 }
 
 export * from "./profile";
+export * from "./resume";

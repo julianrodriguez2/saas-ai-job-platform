@@ -1,14 +1,14 @@
-# Job AI Platform (Increments 1-2)
+# Job AI Platform (Increments 1-4)
 
 Monorepo for an AI-powered Job Search Platform SaaS with:
 - Next.js frontend (App Router + NextAuth + protected pages)
-- Express backend (JWT-protected API middleware)
+- Express backend (JWT-protected API middleware + AI resume generation service)
 - PostgreSQL + Prisma schema
 
 ## Stack
 
 - Frontend: Next.js, React, TypeScript, Tailwind, NextAuth (Google OAuth)
-- Backend: Node.js, Express, TypeScript, JWT auth middleware
+- Backend: Node.js, Express, TypeScript, JWT auth middleware, OpenAI integration
 - Database: PostgreSQL + Prisma ORM
 - Shared: Cross-package TypeScript types
 
@@ -64,6 +64,8 @@ NEXTAUTH_SECRET=replace_with_a_long_random_secret
 JWT_SECRET=replace_with_a_long_random_secret
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-4o-mini
 NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
 ```
 
@@ -87,3 +89,42 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
 - Frontend API client sends `Authorization: Bearer <token>`
 - Backend validates token in `authMiddleware` and populates `req.user`
 - Protected endpoint available at `GET /users/me`
+
+## Profile + Onboarding (Increment 3)
+
+- User has a 1:1 `Profile` in Prisma
+- Onboarding wizard captures role, skills, work history, and education
+- Profile is required before dashboard/job/resume features
+- Profile endpoints:
+  - `GET /profile`
+  - `POST /profile`
+  - `PUT /profile`
+
+## AI Resume Builder (Increment 4)
+
+- Resume generation endpoint:
+  - `POST /resume/generate`
+- Resume retrieval endpoints:
+  - `GET /resume`
+  - `GET /resume/:id`
+- Supports either:
+  - `jobUrl` (parsed with `axios` + `cheerio`)
+  - `jobDescription` (raw text)
+- Flow:
+  1. Extract/normalize job description
+  2. Analyze job requirements with OpenAI
+  3. Combine job analysis + user profile
+  4. Generate ATS-oriented structured resume JSON
+  5. Store in Prisma `Resume.generatedContent`
+
+## Prisma Migration Commands
+
+Run after schema changes:
+
+```bash
+# Increment 3 profile model
+npm --workspace backend exec prisma migrate dev --name add_user_profile
+
+# Increment 4 resume model fields
+npm --workspace backend exec prisma migrate dev --name add_ai_resume_fields
+```
