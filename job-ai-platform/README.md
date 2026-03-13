@@ -1,8 +1,8 @@
-# Job AI Platform (Increments 1-4)
+# Job AI Platform (Increments 1-5)
 
 Monorepo for an AI-powered Job Search Platform SaaS with:
 - Next.js frontend (App Router + NextAuth + protected pages)
-- Express backend (JWT-protected API middleware + AI resume generation service)
+- Express backend (JWT-protected API middleware + AI resume generation/edit service)
 - PostgreSQL + Prisma schema
 
 ## Stack
@@ -117,6 +117,23 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:4000
   4. Generate ATS-oriented structured resume JSON
   5. Store in Prisma `Resume.generatedContent`
 
+## Resume Editor (Increment 5)
+
+- Resume editor route:
+  - `GET /resume/:id` (load existing)
+  - `PUT /resume/:id` (autosave edits)
+- Editable sections:
+  - Summary
+  - Skills
+  - Experience
+  - Education
+- Autosave:
+  - Client-side debounce: 2 seconds after last change
+  - Backend increments `version` and updates `lastEditedAt`
+- Two-column editor layout:
+  - Left: Summary, Skills
+  - Right: Experience, Education
+
 ## Prisma Migration Commands
 
 Run after schema changes:
@@ -127,4 +144,7 @@ npm --workspace backend exec prisma migrate dev --name add_user_profile
 
 # Increment 4 resume model fields
 npm --workspace backend exec prisma migrate dev --name add_ai_resume_fields
+
+# Increment 5 resume editor fields
+npm --workspace backend exec prisma migrate dev --name add_resume_editor_fields
 ```

@@ -11,27 +11,27 @@ const jobAnalysisSchema = z.object({
 });
 
 const generatedResumeSchema = z.object({
-  summary: z.string().default(""),
-  skills: z.array(z.string()).default([]),
+  summary: z.string().catch(""),
+  skills: z.array(z.string()).catch([]),
   experience: z
     .array(
       z.object({
-        role: z.string().default(""),
-        company: z.string().default(""),
-        period: z.string().default(""),
-        highlights: z.array(z.string()).default([])
+        company: z.string().catch(""),
+        title: z.string().catch(""),
+        dates: z.string().catch(""),
+        bullets: z.array(z.string()).catch([])
       })
     )
-    .default([]),
+    .catch([]),
   education: z
     .array(
       z.object({
-        institution: z.string().default(""),
-        degree: z.string().default(""),
-        details: z.string().default("")
+        school: z.string().catch(""),
+        degree: z.string().catch(""),
+        dates: z.string().catch("")
       })
     )
-    .default([])
+    .catch([])
 });
 
 export type JobAnalysis = z.infer<typeof jobAnalysisSchema>;
@@ -86,17 +86,17 @@ Return only valid JSON with:
   "skills": string[],
   "experience": [
     {
-      "role": string,
       "company": string,
-      "period": string,
-      "highlights": string[]
+      "title": string,
+      "dates": string,
+      "bullets": string[]
     }
   ],
   "education": [
     {
-      "institution": string,
+      "school": string,
       "degree": string,
-      "details": string
+      "dates": string
     }
   ]
 }

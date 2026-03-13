@@ -37,9 +37,12 @@ model Profile {
 model Resume {
   id               String   @id @default(uuid())
   userId           String
+  title            String   @default("Untitled Resume")
   jobTitle         String
   companyName      String
   jobDescription   String
+  version          Int      @default(1)
+  lastEditedAt     DateTime @default(now())
   generatedContent Json
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

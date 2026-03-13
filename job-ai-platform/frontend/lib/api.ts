@@ -150,16 +150,16 @@ export async function updateProfile(payload: UpdateProfileInput): Promise<Profil
 }
 
 export interface ResumeExperienceItem {
-  role: string;
   company: string;
-  period: string;
-  highlights: string[];
+  title: string;
+  dates: string;
+  bullets: string[];
 }
 
 export interface ResumeEducationItem {
-  institution: string;
+  school: string;
   degree: string;
-  details: string;
+  dates: string;
 }
 
 export interface GeneratedResumeContent {
@@ -172,9 +172,12 @@ export interface GeneratedResumeContent {
 export interface ResumeRecord {
   id: string;
   userId: string;
+  title: string;
   jobTitle: string;
   companyName: string;
   jobDescription: string;
+  version: number;
+  lastEditedAt: string;
   generatedContent: GeneratedResumeContent;
   createdAt: string;
   updatedAt: string;
@@ -195,4 +198,11 @@ export async function getResumes(): Promise<ResumeRecord[]> {
 
 export async function getResumeById(id: string): Promise<ResumeRecord> {
   return apiClient.get<ResumeRecord>(`/resume/${id}`);
+}
+
+export async function updateResume(
+  resumeId: string,
+  content: GeneratedResumeContent
+): Promise<ResumeRecord> {
+  return apiClient.put<ResumeRecord>(`/resume/${resumeId}`, { content });
 }

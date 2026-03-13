@@ -10,9 +10,12 @@ export interface User {
 export interface Resume {
   id: string;
   userId: string;
+  title: string;
   jobTitle: string;
   companyName: string;
   jobDescription: string;
+  version: number;
+  lastEditedAt: string;
   generatedContent: GeneratedResumeContent;
   createdAt: string;
   updatedAt: string;

@@ -6,5 +6,6 @@ coverage
 .env.local
 frontend/.env.local
 *.log
+*.tsbuildinfo
 frontend/.turbo
 backend/.turbo

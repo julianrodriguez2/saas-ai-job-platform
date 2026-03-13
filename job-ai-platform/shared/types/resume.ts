@@ -1,14 +1,14 @@
 export interface ResumeExperienceItem {
-  role: string;
   company: string;
-  period: string;
-  highlights: string[];
+  title: string;
+  dates: string;
+  bullets: string[];
 }
 
 export interface ResumeEducationItem {
-  institution: string;
+  school: string;
   degree: string;
-  details: string;
+  dates: string;
 }
 
 export interface GeneratedResumeContent {
@@ -17,4 +17,3 @@ export interface GeneratedResumeContent {
   experience: ResumeExperienceItem[];
   education: ResumeEducationItem[];
 }
-

@@ -191,7 +191,7 @@ export function OnboardingForm() {
                   className="rounded-full border border-border bg-surface px-3 py-1 text-xs"
                   title="Remove skill"
                 >
-                  {skill} ×
+                  {skill} x
                 </button>
               ))
             ) : (

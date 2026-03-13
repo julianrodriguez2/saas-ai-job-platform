@@ -5,6 +5,26 @@ import { AuthenticatedRequest } from "../middleware/authMiddleware";
 import { aiResumeService } from "../services/aiResumeService";
 import { parseJobPosting } from "../utils/jobParser";
 
+const resumeContentSchema = z.object({
+  summary: z.string(),
+  skills: z.array(z.string()),
+  experience: z.array(
+    z.object({
+      company: z.string(),
+      title: z.string(),
+      dates: z.string(),
+      bullets: z.array(z.string())
+    })
+  ),
+  education: z.array(
+    z.object({
+      school: z.string(),
+      degree: z.string(),
+      dates: z.string()
+    })
+  )
+});
+
 const generateResumeSchema = z
   .object({
     jobUrl: z.string().url().optional(),
@@ -13,6 +33,10 @@ const generateResumeSchema = z
   .refine((value) => Boolean(value.jobUrl || value.jobDescription), {
     message: "Provide either a jobUrl or a jobDescription."
   });
+
+const updateResumeSchema = z.object({
+  content: resumeContentSchema
+});
 
 export class ResumeController {
   async generateResume(req: AuthenticatedRequest, res: Response): Promise<void> {
@@ -74,9 +98,12 @@ export class ResumeController {
       const savedResume = await prisma.resume.create({
         data: {
           userId: req.user.id,
+          title: `${jobAnalysis.title || userWithProfile.profile.targetRole || "Resume"} - Tailored Draft`,
           jobTitle: jobAnalysis.title || userWithProfile.profile.targetRole || "Untitled Role",
           companyName: jobAnalysis.companyName || "Unknown Company",
           jobDescription: descriptionText,
+          version: 1,
+          lastEditedAt: new Date(),
           generatedContent
         }
       });
@@ -134,6 +161,52 @@ export class ResumeController {
     }
 
     res.status(200).json(resume);
+  }
+
+  async updateResume(req: AuthenticatedRequest, res: Response): Promise<void> {
+    if (!req.user) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const parsedBody = updateResumeSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      res.status(400).json({
+        error: "Invalid resume update payload.",
+        details: parsedBody.error.flatten()
+      });
+      return;
+    }
+
+    const resumeId = req.params.id;
+    const existingResume = await prisma.resume.findFirst({
+      where: {
+        id: resumeId,
+        userId: req.user.id
+      }
+    });
+
+    if (!existingResume) {
+      res.status(404).json({
+        error: "Resume not found."
+      });
+      return;
+    }
+
+    const updatedResume = await prisma.resume.update({
+      where: {
+        id: existingResume.id
+      },
+      data: {
+        generatedContent: parsedBody.data.content,
+        lastEditedAt: new Date(),
+        version: {
+          increment: 1
+        }
+      }
+    });
+
+    res.status(200).json(updatedResume);
   }
 }
 
