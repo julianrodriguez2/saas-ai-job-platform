@@ -1,0 +1,11 @@
+@import "../styles/theme.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
